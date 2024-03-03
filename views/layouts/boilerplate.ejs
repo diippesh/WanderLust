@@ -15,7 +15,9 @@
     <!-- //this include is ejs core concept ejs bhaiya nav bar ko lakar yaha chipka do -->
     <%- include("../includes/navbar.ejs")%>
     <div class="container">
+        <%- include("../includes/flash.ejs")%>
         <!-- this is ejs mate concept ejs mate bhaiya body wala tag index file se lekar yaha par render kara do -->
+
         <%- body -%>
     </div>
     <%- include("../includes/footer.ejs")%>
