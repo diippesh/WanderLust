@@ -102,6 +102,7 @@ app.all('*',(req,res,next)=>{
     next(new ExpressError(404,"Page Not Found"))
 })
 app.use((err,req,res,next)=>{
+    console.log(err)
     let {status=500,message="something went wrong"}  = err  
     res.status(status).render("error.ejs",{message})
 }) 
