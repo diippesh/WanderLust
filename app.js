@@ -5,12 +5,14 @@ if(process.env.NODE_ENV !== 'production'){
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
-const MONGO_URL = 'mongodb://127.0.0.1:27017/wanderlust'
+
+const dbUrl = process.env.ATLASDB_URL
 const path = require('path')
 const methodOverride = require('method-override')
 const ejsMate = require('ejs-mate')
 const ExpressError = require('./utils/ExpressError.js')
 const session = require('express-session')
+const MongoStore = require('connect-mongo') 
 const flash = require('connect-flash')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
@@ -25,7 +27,7 @@ main().then(() => {
 })
     .catch((err) => { console.log(err); })
 async function main() {
-    await mongoose.connect(MONGO_URL)
+    await mongoose.connect(dbUrl)
 }
 
 app.use(methodOverride("_method"))
@@ -37,9 +39,19 @@ app.engine('ejs',ejsMate)
 app.use(express.static(path.join(__dirname,'/public')))
 
 
-
+const store = MongoStore.create({
+    mongoUrl : dbUrl,
+    crypto:{
+        secret:process.env.SECRET,
+    },
+    touchAfter:24*3600,
+})  
+store.on('error',()=>{
+    console.log('error');  
+})
 const sessionOptions = {
-    secret:"my super secret code",
+    store,
+    secret:process.env.SECRET,
     resave:false,
     saveUninitialized:true, 
     cookie:{
@@ -49,9 +61,7 @@ const sessionOptions = {
         httpOnly:true,
     }
 }
-app.get('/', (req,res)=>{
-    console.log('hyyy')
-})
+
 app.use(session(sessionOptions))
 // flash ko route se pehle use karna hoga
 app.use(flash())
@@ -105,10 +115,10 @@ app.all('*',(req,res,next)=>{
     next(new ExpressError(404,"Page Not Found"))
 })
 app.use((err,req,res,next)=>{
-    console.log(err)
+   
     let {status=500,message="something went wrong"}  = err  
     res.status(status).render("error.ejs",{message})
 }) 
 app.listen(8000, () => {
-    console.log('app is lis')
+   
 })

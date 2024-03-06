@@ -1,11 +1,13 @@
 const mongoose = require('mongoose')
 const initData = require('./data.js')
 const Listing = require('../models/listing.js');
-const MONGO_URL = 'mongodb://127.0.0.1:27017/wanderlust'
+const MONGO_URL =process.env.ATLASDB_URL
 main().then(()=>{
-    console.log("database is running")
+    console.log('server is serving')
+
 })
-.catch((err)=>{console.log(err);})
+.catch((err)=>{    console.log('server is busy')
+})
 async function main(){
     await mongoose.connect(MONGO_URL)
 }
@@ -13,6 +15,5 @@ const initDB = async ()=>{
     await Listing.deleteMany({})
     initData.data = initData.data.map(obj =>({...obj,owner:'65e53e9818717e77216b7a70'}))
     await Listing.insertMany(initData.data)
-    console.log('data waas initialized');
 }
 initDB();
